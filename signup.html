@@ -55,7 +55,7 @@
 
     <script>
     // Configuration: Update this URL after deploying to Render
-    const API_URL = "http://127.0.0.1:8000"; 
+    const API_URL = "https://complaint-backend-w3i7.onrender.com"; 
 
     // Auto-generate user ID
     function generateUserID() {
@@ -100,7 +100,7 @@
         };
 
         try {
-            const response = await fetch(`http://127.0.0.1:8000/signup`, {
+            const response = await fetch(`https://complaint-backend-w3i7.onrender.com/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
