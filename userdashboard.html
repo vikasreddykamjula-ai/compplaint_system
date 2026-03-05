@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Online Complaint System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">📝 Complaint Portal</div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="userdashboard.html">User Dashboard</a></li>
+                <li><button id="logout-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:4px;">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <section>
+                <h2 id="welcome-text">User Dashboard</h2>
+                <p>Welcome, Student! You can submit a new complaint or view your previous complaints here.</p>
+                <form id="complaint-form">
+                    <input type="text" id="title" name="title" placeholder="Complaint Title" required>
+                    <textarea id="description" name="description" placeholder="Describe your issue..." required></textarea>
+                    <button type="submit">Submit Complaint</button>
+                </form>
+                <div class="complaint-success hidden" id="complaint-success">✅ Complaint submitted!</div>
+                <h3>Your Complaints</h3>
+                <table id="user-complaints-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Reply</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-complaints-body">
+                        <!-- User complaints will be loaded here -->
+                    </tbody>
+                </table>
+            </body>
+            </html>
+            <script>
+            // 1. Configuration: Set to local for testing, change to Render URL for production
+            const API_URL = "http://127.0.0.1:8000";
+
+            // 2. Auth Check: Ensure user is logged in
+            const currentUserId = localStorage.getItem('current_user_id');
+            const userFullName = localStorage.getItem('user_fullname');
+
+            if (!currentUserId) {
+                alert("No active session found. Please login.");
+                window.location.href = "login.html";
+            } else if (userFullName) {
+                document.getElementById('welcome-text').innerText = `Welcome, ${userFullName}`;
+            }
+
+            // 3. Fetch User's Complaint History from FastAPI
+            async function fetchMyComplaints() {
+                try {
+                    // Endpoint fetches only complaints for this specific user ID
+                    const response = await fetch(`${API_URL}/user/complaints/${currentUserId}`);
+                    const complaints = await response.json();
+                    const tableBody = document.getElementById('user-complaints-body');
+                    tableBody.innerHTML = '';
+                    if (complaints.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="4">No complaints found.</td></tr>';
+                    } else {
+                        complaints.forEach(c => {
+                            const row = `
+                                <tr>
+                                    <td>${c.id}</td>
+                                    <td>${c.title}</td>
+                                    <td style="font-weight:bold; color: ${c.status === 'Resolved' ? '#28a745' : '#ffc107'}">
+                                        ${c.status}
+                                    </td>
+                                    <td>${c.reply ? c.reply : ''}</td>
+                                </tr>
+                            `;
+                            tableBody.innerHTML += row;
+                        });
+                    }
+                } catch (error) {
+                    console.error("Fetch Error:", error);
+                }
+            }
+
+            // 4. Handle Form Submission
+            document.getElementById('complaint-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const complaintData = {
+                    user_id: parseInt(currentUserId),
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value
+                };
+                try {
+                    const response = await fetch(`${API_URL}/complaints`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(complaintData)
+                    });
+                    if (response.ok) {
+                        document.getElementById('complaint-success').classList.remove('hidden');
+                        document.getElementById('complaint-form').reset();
+                        fetchMyComplaints();
+                        setTimeout(() => {
+                            document.getElementById('complaint-success').classList.add('hidden');
+                        }, 3000);
+                    } else {
+                        alert("Submission failed. Please check backend connectivity.");
+                    }
+                } catch (error) {
+                    console.error("Submission Error:", error);
+                }
+            });
+
+            // 5. Logout Function
+            function logout() {
+                localStorage.clear();
+                window.location.href = "login.html";
+            }
+
+            // Initial Load
+            fetchMyComplaints();
+            </script>
+            </section>
+        </div>
+    </main>
+    <footer class="main-footer">
+        <span>© 2026 Online Complaint System. All rights reserved.</span>
+        <nav class="footer-nav">
+            <a href="home.html">Home</a> |
+            <a href="about.html">About</a> |
+            <a href="userdashboard.html">User Dashboard</a> |
+        </nav>
+    </footer>
+<script>
+document.getElementById('logout-btn').addEventListener('click', function() {
+    localStorage.clear();
+    window.location.href = 'login.html';
+});
+</script>
+</body>
+</html>

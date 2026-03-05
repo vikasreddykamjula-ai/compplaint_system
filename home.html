@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Online Complaint System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">📝 Complaint Portal</div>
+        <nav class="navbar">
+            <ul id="main-nav-list">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li id="nav-raise-complaint" class="hidden"><a href="userdashboard.html">Raise Complaint</a></li>
+                <li id="nav-user-dashboard" class="hidden"><a href="userdashboard.html">User Dashboard</a></li>
+                <li id="nav-admin-dashboard" class="hidden"><a href="Admindashboard.html">Admin Dashboard</a></li>
+                <li id="nav-login"><a href="login.html">Student Login</a></li>
+                <li id="nav-admin-login"><a href="adminlogin.html">Admin Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <section style="text-align:center;">
+                <h2>Welcome to the Online Complaint System</h2>
+                <div class="app-hero">
+                    <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Complaint" class="hero-img" />
+                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Student" class="hero-img" />
+                    <img src="https://cdn-icons-png.flaticon.com/512/2920/2920061.png" alt="Admin" class="hero-img" />
+                </div>
+                <div class="app-animation">
+                    <div class="bubble bubble1"></div>
+                    <div class="bubble bubble2"></div>
+                    <div class="bubble bubble3"></div>
+                </div>
+                <p>
+                    The Online Complaint System is your one-stop platform for submitting, tracking, and resolving complaints efficiently. Whether you are a student or an administrator, our portal provides a transparent and user-friendly experience.
+                </p>
+                <ul>
+                    <li>✔️ Students can easily raise complaints and monitor their status.</li>
+                    <li>✔️ Admins can manage, review, and resolve complaints from a central dashboard.</li>
+                    <li>✔️ Secure login for both students and admins.</li>
+                    <li>✔️ Fast, responsive, and accessible from any device.</li>
+                </ul>
+                <p>
+                    <strong>Get started by logging in or learning more about our system!</strong>
+                </p>
+            </section>
+        </div>
+    </main>
+    <footer class="main-footer">
+        <span>© 2026 Online Complaint System. All rights reserved.</span>
+        <nav class="footer-nav">
+            <a href="home.html">Home</a> |
+            <a href="about.html">About</a> |
+            <a href="contact.html">Contact</a> |
+            <a href="login.html">Student Login</a> |
+            <a href="adminlogin.html">Admin Login</a>
+        </nav>
+    </footer>
+    <script>
+    function updateNavLinks() {
+        const isStudent = localStorage.getItem('current_user_id');
+        const isAdmin = localStorage.getItem('is_admin');
+        document.getElementById('nav-raise-complaint').classList.toggle('hidden', !isStudent);
+        document.getElementById('nav-user-dashboard').classList.toggle('hidden', !isStudent);
+        document.getElementById('nav-login').classList.toggle('hidden', !!isStudent);
+        document.getElementById('nav-admin-login').classList.toggle('hidden', !!isStudent || !!isAdmin);
+        document.getElementById('nav-admin-dashboard').classList.toggle('hidden', !isAdmin);
+    }
+    updateNavLinks();
+    window.addEventListener('storage', updateNavLinks);
+    </script>
+</body>
+</html>

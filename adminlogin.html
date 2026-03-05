@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Online Complaint System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">📝 Complaint Portal</div>
+        <nav class="navbar">
+            <ul id="main-nav-list">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li id="nav-raise-complaint" class="hidden"><a href="userdashboard.html">Raise Complaint</a></li>
+                <li id="nav-user-dashboard" class="hidden"><a href="userdashboard.html">User Dashboard</a></li>
+                <li id="nav-admin-dashboard" class="hidden"><a href="Admindashboard.html">Admin Dashboard</a></li>
+                <li id="nav-login"><a href="login.html">Student Login</a></li>
+                <li id="nav-admin-login"><a href="adminlogin.html">Admin Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <section>
+                <h2>Admin Login</h2>
+                <form id="admin-login-form">
+                    <input type="text" id="admin-username" placeholder="Admin Username" required>
+                    <input type="password" id="admin-password" placeholder="Password" required>
+                    <button type="submit">Login as Admin</button>
+                </form>
+                <div class="complaint-success hidden" id="admin-login-success">✅ Login successful!</div>
+            </section>
+        </div>
+    </main>
+    <footer class="main-footer">
+        <span>© 2026 Online Complaint System. All rights reserved.</span>
+        <nav class="footer-nav">
+            <a href="home.html">Home</a> |
+            <a href="about.html">About</a> |
+            
+            <a href="login.html">Student Login</a> |
+            <a href="adminlogin.html">Admin Login</a>
+        </nav>
+    </footer>
+    <script>
+    function updateNavLinks() {
+        const isStudent = localStorage.getItem('current_user_id');
+        const isAdmin = localStorage.getItem('is_admin');
+        document.getElementById('nav-raise-complaint').classList.toggle('hidden', !isStudent);
+        document.getElementById('nav-user-dashboard').classList.toggle('hidden', !isStudent);
+        document.getElementById('nav-login').classList.toggle('hidden', !!isStudent);
+        document.getElementById('nav-admin-login').classList.toggle('hidden', !!isStudent || !!isAdmin);
+        document.getElementById('nav-admin-dashboard').classList.toggle('hidden', !isAdmin);
+    }
+    updateNavLinks();
+    window.addEventListener('storage', updateNavLinks);
+    </script>
+    <script>
+    document.getElementById('admin-login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const username = document.getElementById('admin-username').value;
+        const password = document.getElementById('admin-password').value;
+        try {
+            const res = await fetch('http://127.0.0.1:8000/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.role === 'admin' || data.email === 'admin@gmail.com') {
+                    localStorage.setItem('is_admin', 'true');
+                    localStorage.setItem('admin_id', data.id);
+                    localStorage.setItem('admin_fullname', data.fullname);
+                    document.getElementById('admin-login-success').classList.remove('hidden');
+                    setTimeout(function() {
+                        document.getElementById('admin-login-success').classList.add('hidden');
+                        document.getElementById('admin-login-form').reset();
+                        window.location.href = 'Admindashboard.html';
+                    }, 1200);
+                } else {
+                    alert('You are not authorized as admin.');
+                }
+            } else {
+                alert('Invalid credentials. Please try again.');
+            }
+        } catch (err) {
+            alert('Login failed. Please check your connection.');
+        }
+    });
+    </script>
+</body>
+</html>

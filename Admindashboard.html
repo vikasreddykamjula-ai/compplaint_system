@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Online Complaint System</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">📝 Complaint Portal</div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="Admindashboard.html">Admin Dashboard</a></li>
+                <li><button id="logout-btn" style="background:#dc3545; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:4px;">Logout</button></li>
+                 
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <section>
+                <h2>Admin Dashboard</h2>
+                <p>Welcome, Admin! Here you can view and manage all complaints and users.</p>
+                
+                <h3>All Users</h3>
+                                <table>
+                                        <thead>
+                                                <tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Actions</th></tr>
+                                        </thead>
+                                        <tbody id="users-body"></tbody>
+                                </table>
+                                <!-- Edit User Modal -->
+                                <div id="edit-user-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); align-items:center; justify-content:center;">
+                                    <div style="background:#fff; padding:24px; border-radius:8px; min-width:320px; max-width:90vw;">
+                                        <h4>Edit User</h4>
+                                        <form id="edit-user-form">
+                                            <input type="hidden" id="edit-user-id">
+                                            <input type="text" id="edit-fullname" placeholder="Full Name" required><br><br>
+                                            <input type="email" id="edit-email" placeholder="Email" required><br><br>
+                                            <input type="text" id="edit-mobile" placeholder="Mobile" required><br><br>
+                                            <select id="edit-role">
+                                                <option value="user">User</option>
+                                                <option value="admin">Admin</option>
+                                            </select><br><br>
+                                            <button type="submit">Save</button>
+                                            <button type="button" onclick="closeEditModal()">Cancel</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                <h3>All Complaints</h3>
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>User ID</th><th>Title</th><th>Status</th><th>Reply</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="complaints-body"></tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+
+<script>
+const API_URL = "http://127.0.0.1:8000";
+
+// Auth Guard
+if (localStorage.getItem('is_admin') !== 'true') { window.location.href = 'adminlogin.html'; }
+
+// Logout
+document.getElementById('logout-btn').addEventListener('click', function() {
+    localStorage.clear();
+    window.location.href = 'adminlogin.html';
+});
+
+// Fetch Users
+async function fetchUsers() {
+    const res = await fetch(`${API_URL}/admin/users`);
+    const users = await res.json();
+    const body = document.getElementById('users-body');
+    body.innerHTML = users.map(u => `
+        <tr>
+            <td>${u.id}</td><td>${u.username}</td><td>${u.fullname}</td><td>${u.email}</td><td>${u.role}</td>
+            <td>
+                <button onclick="showEditModal(${u.id}, '${u.fullname}', '${u.email}', '${u.mobile}', '${u.role}')">Edit</button>
+                <button onclick="deleteUser(${u.id})" style="background:#ff4d4d; color:white; border:none; cursor:pointer;">Delete</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Fetch Complaints
+async function fetchComplaints() {
+    const res = await fetch(`${API_URL}/admin/complaints`);
+    const complaints = await res.json();
+    const body = document.getElementById('complaints-body');
+    body.innerHTML = complaints.map(c => `
+        <tr>
+            <td>${c.id}</td><td>${c.user_id}</td><td>${c.title}</td>
+            <td><strong>${c.status}</strong></td>
+            <td>
+                <div>${c.reply ? c.reply : ''}</div>
+                <input type="text" id="reply-${c.id}" placeholder="Reply..." style="width:100px; margin-top:4px;">
+                <button onclick="replyComplaint(${c.id})">Send</button>
+            </td>
+            <td>
+                <button onclick="updateStatus(${c.id}, 'Resolved')">Resolve</button>
+                <button onclick="deleteComplaint(${c.id})" style="color:red;">Del</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+window.deleteUser = async (id) => {
+    if(confirm('Delete user?')) {
+        await fetch(`${API_URL}/admin/users/${id}`, {method:'DELETE'});
+        fetchUsers();
+    }
+};
+window.showEditModal = function(id, fullname, email, mobile, role) {
+    document.getElementById('edit-user-id').value = id;
+    document.getElementById('edit-fullname').value = fullname;
+    document.getElementById('edit-email').value = email;
+    document.getElementById('edit-mobile').value = mobile;
+    document.getElementById('edit-role').value = role;
+    document.getElementById('edit-user-modal').style.display = 'flex';
+};
+window.closeEditModal = function() {
+    document.getElementById('edit-user-modal').style.display = 'none';
+};
+document.getElementById('edit-user-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-user-id').value;
+    const data = {
+        fullname: document.getElementById('edit-fullname').value,
+        email: document.getElementById('edit-email').value,
+        mobile: document.getElementById('edit-mobile').value,
+        role: document.getElementById('edit-role').value
+    };
+    await fetch(`${API_URL}/admin/users/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    closeEditModal();
+    fetchUsers();
+};
+
+window.updateStatus = async (id, status) => {
+    await fetch(`${API_URL}/admin/complaints/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ status })
+    });
+    fetchComplaints();
+};
+
+// For replyComplaint, you need to implement the backend endpoint `/complaints/{id}/reply` in FastAPI.
+window.replyComplaint = async (id) => {
+    const reply = document.getElementById('reply-' + id).value;
+    if(!reply) return alert('Enter a reply.');
+    // Placeholder: You must implement this endpoint in FastAPI for full functionality.
+    await fetch(`${API_URL}/complaints/${id}/reply`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ reply })
+    });
+    alert('Reply sent!');
+    document.getElementById('reply-' + id).value = '';
+};
+
+window.deleteComplaint = async (id) => { if(confirm('Delete?')) { await fetch(`${API_URL}/complaints/${id}`, {method:'DELETE'}); fetchComplaints(); } };
+
+fetchUsers();
+fetchComplaints();
+</script>
+</body>
+</html>

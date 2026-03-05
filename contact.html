@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Online Complaint System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">Online Complaint System</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="rise-complaint.html">Raise Complaint</a></li>
+                <li><a href="contact.html" class="active">Contact</a></li>
+                <li><a href="login.html">User Login</a></li>
+                <li><a href="adminlogin.html">Admin Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <h2>Contact Us</h2>
+            <form id="contactForm">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+                <label for="message">Message</label>
+                <textarea id="message" name="message" rows="5" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+            <div id="contact-success" class="complaint-success hidden">Thank you for contacting us!</div>
+        </div>
+    </main>
+    <footer class="main-footer">
+        &copy; 2026 Online Complaint System &mdash; <a href="contact.html" style="color:#fffbe9;text-decoration:underline;">Contact</a> | <a href="about.html" style="color:#fffbe9;text-decoration:underline;">About</a>
+    </footer>
+    <script>
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        document.getElementById('contact-success').classList.remove('hidden');
+        this.reset();
+    });
+    </script>
+</body>
+</html>

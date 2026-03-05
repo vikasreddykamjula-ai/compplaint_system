@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rise Complaint - Online Complaint System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">📝 Complaint Portal</div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html#home-section">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="rise-complaint.html">Rise Complaint</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <section>
+                <h2>Submit a Complaint</h2>
+                <form id="complaint-form">
+                    <input type="email" id="email" name="email" placeholder="Your Email" required>
+                    <input type="text" id="reason" name="reason" placeholder="Reason for Complaint" required>
+                    <textarea id="description" name="description" placeholder="Describe your complaint..." required></textarea>
+                    <button type="submit">Submit Complaint</button>
+                </form>
+                <div class="complaint-success hidden" id="complaint-success">✅ Complaint submitted!</div>
+            </section>
+        </div>
+    </main>
+    <footer class="main-footer">
+        <span>© 2026 Online Complaint System. All rights reserved.</span>
+        <nav class="footer-nav">
+            <a href="home.html">Home</a> |
+            <a href="about.html">About</a> |
+            <a href="contact.html">Contact</a> |
+            <a href="rise-complaint.html">Raise Complaint</a>
+        </nav>
+    </footer>
+    <script>
+    document.getElementById('complaint-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        document.getElementById('complaint-success').classList.remove('hidden');
+        setTimeout(function() {
+            document.getElementById('complaint-success').classList.add('hidden');
+            document.getElementById('complaint-form').reset();
+        }, 2000);
+    });
+    </script>
+</body>
+</html>
